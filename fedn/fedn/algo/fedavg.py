@@ -35,8 +35,10 @@ class FEDAVGCombiner:
         self.validations = {}
 
         # TODO: make choice of helper configurable on Recucer level
-        from fedn.utils.kerassequential import KerasSequentialHelper
-        self.helper = KerasSequentialHelper()
+        #from fedn.utils.kerassequential import KerasSequentialHelper
+        from fedn.utils.kerasfunctional import KerasFunctionalHelper
+        #self.helper = KerasSequentialHelper()
+        self.helper = KerasFunctionalHelper()
         self.model_updates = queue.Queue()
 
     def report_status(self, msg, log_level=fedn.Status.INFO, type=None, request=None, flush=True):
