@@ -11,7 +11,7 @@ import numpy as np
 import tensorflow.keras.models as krm
 import collections
 from .helpers import HelperBase
-from yolo3 import yolo_head, box_iou 
+from .yolo3 import yolo_head, box_iou 
 import tensorflow as tf
 
 class KerasFunctionalHelper(HelperBase):
