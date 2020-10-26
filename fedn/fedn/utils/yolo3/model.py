@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : model.py
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 26.10.2020
+# Last Modified Date: 26.10.2020
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 """YOLO_v3 Model Defined in Keras."""
 
 from functools import wraps
@@ -11,8 +18,7 @@ from keras.layers import BatchNormalization
 from keras.models import Model
 from keras.regularizers import l2
 
-from inliner import inline
-from src.yolo3.utils import compose
+from yolo3.utils import compose
 
 
 @wraps(Conv2D)
@@ -301,7 +307,6 @@ def preprocess_true_boxes(true_boxes, input_shape, anchors, num_classes):
 
     return y_true
 
-@inline
 def box_iou(b1, b2):
     '''Return iou tensor
 
@@ -342,7 +347,6 @@ def box_iou(b1, b2):
 
     return iou
 
-@inline
 def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False):
     '''Return yolo_loss tensor
 
