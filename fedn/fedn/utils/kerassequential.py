@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : kerassequential.py
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 26.10.2020
+# Last Modified Date: 26.10.2020
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 import os
 import tempfile
 import numpy as np
