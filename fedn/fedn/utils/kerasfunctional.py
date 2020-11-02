@@ -3,7 +3,7 @@
 # File              : kerasfunctional.py
 # Author            : Sheetal Reddy <sheetal.reddy@ai.se>
 # Date              : 26.10.2020
-# Last Modified Date: 26.10.2020
+# Last Modified Date: 02.11.2020
 # Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 import os
 import tempfile
@@ -13,6 +13,7 @@ import collections
 from .helpers import HelperBase
 from .yolo3.model  import yolo_head, box_iou 
 import tensorflow as tf
+import sys
 
 class KerasFunctionalHelper(HelperBase):
     """ FEDn helper class for keras.Sequential. """
@@ -48,6 +49,8 @@ class KerasFunctionalHelper(HelperBase):
     def load_model(self, model, objects = {'yolo_head': yolo_head, 'tf':tf, 'box_iou': box_iou}):
         """ We need to go via a tmpfile to load bytestream serializd models retrieved from the miniorepository. """
         fod, outfile_name = tempfile.mkstemp(suffix='.h5')
+        print('MODEL TYPE', type(model))
+        print('MODEL SIZE', sys.getsizeof(model))
         with open(outfile_name, 'wb') as fh:
             s = fh.write(model)
             print("Written {}".format(s),flush=True)
