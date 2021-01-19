@@ -1,0 +1,10 @@
+# File              : settings-client.yaml
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 22.12.2020
+# Last Modified Date: 22.12.2020
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
+network_id: fedn-test-network
+controller:
+    discover_host: reducer
+    discover_port: 8090
+    token: token

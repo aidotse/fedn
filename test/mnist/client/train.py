@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : train.py
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 22.12.2020
+# Last Modified Date: 22.12.2020
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 from __future__ import print_function
 import sys
 import tensorflow as tf
@@ -46,6 +53,7 @@ def train(model,data,settings):
     return model
 
 if __name__ == '__main__':
+
 
     with open('settings.yaml', 'r') as fh:
         try:

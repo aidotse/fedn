@@ -1,0 +1,32 @@
+# File              : clients_vm1.yaml
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 22.12.2020
+# Last Modified Date: 22.12.2020
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
+version: '3.3'
+services:
+  client_vm1_1:
+    environment:
+      - GET_HOSTS_FROM=dns
+    image: "scaleoutsystems/client:latest"
+    build:
+      context: .
+      dockerfile: components/client/Dockerfile
+    working_dir: /app/
+    command: /bin/bash -c "fedn run client -in ./config/settings-client.yaml"
+    volumes:
+      - ./config:/app/config
+      - ./test/${EXAMPLE}/data/casa1/c0:/app/data
+  client_vm1_2:
+    environment:
+      - GET_HOSTS_FROM=dns
+    image: "scaleoutsystems/client:latest"
+    build:
+      context: .
+      dockerfile: components/client/Dockerfile
+    working_dir: /app/
+    command: /bin/bash -c "fedn run client -in ./config/settings-client.yaml"
+    volumes:
+      - ./config:/app/config
+      - ./test/${EXAMPLE}/data/casa1/c1:/app/data
+

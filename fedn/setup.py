@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : setup.py
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 15.12.2020
+# Last Modified Date: 15.12.2020
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 from setuptools import setup, find_packages
 
 setup(
@@ -24,8 +31,8 @@ setup(
         "six",
         "python-slugify==4.0.1",
         "prettytable==1.0.1",
-        "grpcio-tools>=1.32.0",
-        "grpcio>=1.32.0",
+        "grpcio-tools>=1.34.0",
+        "grpcio>=1.34.0",
         "protobuf",
         "pypandoc==1.5",
         "wheel",
