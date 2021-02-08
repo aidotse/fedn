@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : restservice.py
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 01.02.2021
+# Last Modified Date: 02.02.2021
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 from fedn.clients.reducer.interfaces import CombinerInterface
 from fedn.clients.reducer.state import ReducerState, ReducerStateToString
 from flask_wtf.csrf import CSRFProtect
@@ -182,7 +189,7 @@ class ReducerRestService:
 
 
             if request.method == 'POST':
-                timeout = request.form.get('timeout', 180)
+                timeout = request.form.get('timeout', 500)
                 rounds = int(request.form.get('rounds', 1))
 
                 task = (request.form.get('task', ''))

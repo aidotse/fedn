@@ -1,12 +1,13 @@
-FROM scaleoutsystems/fedn-base:latest
+FROM  nvcr.io/nvidia/tensorflow:20.09-tf1-py3
 
-COPY components/client/requirements.txt /app/requirements.txt
+RUN pip install numpy==1.18.5 h5py==2.10.0 keras==2.1.4 pandas sklearn pillow matplotlib mean_average_precision
+
 RUN mkdir -p /app && \
     mkdir -p /app/client && \
     mkdir -p /app/certs
 COPY fedn /app/fedn
-RUN pip install -r /app/requirements.txt && \
-    pip install -e /app/fedn
+COPY fedn-network.yaml /app/
+RUN  pip install -e /app/fedn
 
 WORKDIR /app
 

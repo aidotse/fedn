@@ -1,11 +1,36 @@
+# File              : client.yaml
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 26.01.2021
+# Last Modified Date: 01.02.2021
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
+
 version: '3.3'
 services:
-  client:
+  farallon3:
     environment:
       - GET_HOSTS_FROM=dns
-    image: "scaleoutsystems/fedn-client:master"
+    image: "scaleoutsystems/client:latest"
+    build:
+      context: .
+      dockerfile: ${PWD}/components/client/Dockerfile
     working_dir: /app/
-    command: /bin/bash -c "sleep 10 && fedn run client -in ./config/settings-client.yaml"
+    command: /bin/bash -c "fedn run client -in fedn-network.yaml"
     volumes:
-      - ${PWD}/config:/app/config
-      - ${PWD}/test/${EXAMPLE}/data:/app/data
+      - ./config:/app/config
+      - ./data/client1:/app/data
+  roaster3:
+    environment:
+      - GET_HOSTS_FROM=dns
+    image: "scaleoutsystems/client:latest"
+    build:
+      context: .
+      dockerfile: ${PWD}/components/client/Dockerfile
+    working_dir: /app/
+    command: /bin/bash -c "fedn run client -in fedn-network.yaml"
+    volumes:
+      - ./config:/app/config
+      - ./data/client2:/app/data
+networks:
+  default:
+    external:
+      name: fedn_default      
