@@ -1,5 +1,10 @@
+# File              : fedn-network.yaml
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 01.02.2021
+# Last Modified Date: 01.02.2021
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 network_id: fedn-test-network
 controller:
-    discover_host: reducer
+    discover_host: 13.49.227.140
     discover_port: 8090
     token: token

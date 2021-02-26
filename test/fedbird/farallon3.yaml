@@ -18,19 +18,8 @@ services:
     volumes:
       - ${PWD}/test/fedbird/config:/app/config
       - ${PWD}/test/fedbird/data/client1:/app/data
-  roaster3:
-    environment:
-      - GET_HOSTS_FROM=dns
-    image: "scaleoutsystems/client:latest"
-    build:
-      context: .
-      dockerfile: components/client/Dockerfile
-    working_dir: /app/
-    command: /bin/bash -c "fedn run client -in fedn-network.yaml"
-    volumes:
-      - ${PWD}/test/fedbird/config:/app/config
-      - ${PWD}/test/fedbird/data/client2:/app/data
+
 networks:
   default:
     external:
-      name: fedn_default      
+      name: fedn_default  
