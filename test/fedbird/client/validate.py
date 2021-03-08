@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : validate.py
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 08.03.2021
+# Last Modified Date: 08.03.2021
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 import logging
 import sys
 import json
@@ -21,6 +28,7 @@ if __name__ == '__main__':
     report = {
         "training_loss": results[0],
         "test_loss": results[1],
+        'mAP'      : result[2]
         # "training_AUC": results[2],
         # "test_AUC": results[3],
         # "training_Precision": results[4],
