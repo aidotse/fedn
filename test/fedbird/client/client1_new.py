@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : client1_new.py
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 08.03.2021
+# Last Modified Date: 08.03.2021
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 __author__ = 'sheetal.reddy@ai.se'
 
 """Federated Learning Implementation v.0.1 - 2020-10-06 
@@ -17,18 +24,17 @@ from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from sklearn.metrics import accuracy_score
-#from mean_average_precision import MeanAveragePrecision
 
 import tensorflow as tf
 import keras
 # from keras.models import Model
 from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
-
+from mean_average_precision import MetricBuilder
 from keras.layers import Input, Lambda
 from keras.optimizers import Adam
 from keras import backend as K
-from yolo3.model import tiny_yolo_body, yolo_loss, preprocess_true_boxes
-from yolo3.utils import get_random_data
+from yolo3.model import tiny_yolo_body, yolo_loss, preprocess_true_boxes, yolo_eval
+from yolo3.utils import get_random_data, get_data
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 os.environ['CUDA_VISIBLE_DEVICES'] = '2'
@@ -40,10 +46,11 @@ class Model:
 
         self.input_shape = input_shape
         self.current_model = None
+        self.model_body = None 
         self.logger = logging.getLogger('__name__')
 
     def build_model(self, anchors, num_classes, load_pretrained=False, freeze_body=2,
-                    weights_path='model_data/yolov3-tiny.h5'):
+                    weights_path='model_data/tiny.h5'):
         '''create the training model, for Tiny YOLOv3'''
         K.clear_session()  # get a new session
         image_input = Input(shape=(None, None, 3))
@@ -53,24 +60,28 @@ class Model:
         y_true = [Input(shape=(h // {0: 32, 1: 16}[l], w // {0: 32, 1: 16}[l], \
                                num_anchors // 2, num_classes + 5)) for l in range(2)]
 
-        model_body = tiny_yolo_body(image_input, num_anchors // 2, num_classes)
+        self.model_body = tiny_yolo_body(image_input, num_anchors // 2, num_classes)
         self.logger.info('Create Tiny YOLOv3 model with {} anchors and {} classes.'.format(num_anchors, num_classes))
 
         if load_pretrained:
-            model_body.load_weights(weights_path, by_name=True, skip_mismatch=True)
+            self.model_body.load_weights(weights_path, by_name=True, skip_mismatch=True)
             print('Load weights {}.'.format(weights_path))
             if freeze_body in [1, 2]:
                 # Freeze the darknet body or freeze all but 2 output layers.
-                num = (20, len(model_body.layers) - 2)[freeze_body - 1]
-                for i in range(num): model_body.layers[i].trainable = False
-                print('Freeze the first {} layers of total {} layers.'.format(num, len(model_body.layers)))
+                num = (20, len(self.model_body.layers) - 2)[freeze_body - 1]
+                for i in range(num): self.model_body.layers[i].trainable = False
+                print('Freeze the first {} layers of total {} layers.'.format(num, len(self.model_body.layers)))
 
         model_loss = Lambda(yolo_loss, output_shape=(1,), name='yolo_loss',
                             arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.7})(
-            [*model_body.output, *y_true])
-        self.current_model = keras.models.Model([model_body.input, *y_true], model_loss)
+            [*self.model_body.output, *y_true])
+        self.current_model = keras.models.Model([self.model_body.input, *y_true], model_loss)
         # self.current_model.save('test_model')
         return self.current_model
+
+    def get_model_body(self):
+       return self.model_body
+
 
 
 class TrainDataReader:
@@ -97,6 +108,18 @@ class TrainDataReader:
         return lines[:num_train], lines[num_train:]
 
     # def get_all_data(self,annotation_lines, input_shape, anchors, num_classes):
+    def get_gt(self, annotation_lines, input_shape, num_classes):
+        '''geenrates gt boxes for map calculation'''
+        n = len(annotation_lines)
+        gts = []
+        image_data = []
+        for i in range(0, n):
+            image, box = get_data(annotation_lines[i], input_shape, random=False)
+            image_data.append(image)
+            gts.append(box)
+        image_data = np.array(image_data)
+
+        return image_data,gts
 
     def data_generator(self, annotation_lines, input_shape, anchors, num_classes):
         '''data generator for fit_generator'''
@@ -172,6 +195,15 @@ class TrainingProcess:
         self.early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
         self.local_model = self._model.build_model(self.anchors,
                                                    self.num_classes)  # model created, self._model.current_model
+        self.metric_fn = MetricBuilder.build_evaluation_metric( "map_2d", async_mode=True ,num_classes=self.num_classes)
+        
+        self.model_body = self._model.get_model_body()
+        self.input_image_shape = K.placeholder(shape=(2, ))
+        self.sess = K.get_session()
+        self.boxes, self.scores, self.classes = yolo_eval(self.model_body.output, self.anchors,
+                             self.num_classes,self.input_image_shape, score_threshold=0.3, iou_threshold=0.5)
+
+        
         self.logger = logging.getLogger('FedBird')
         # self.local_model = None
 
@@ -248,7 +280,7 @@ class TrainingProcess:
 
         """
         if data_path:
-            self.lines_train, self.lines_val = self._data.read_training_data(data_root_path, data_path)
+            _, self.lines_val = self._data.read_training_data(data_root_path, data_path)
 
         self.local_model.compile(optimizer=Adam(lr=self.lr),
                                  loss={'yolo_loss': lambda y_true, y_pred: y_pred})
@@ -259,12 +291,46 @@ class TrainingProcess:
         train_results = self.local_model.evaluate_generator(
             self._data.data_generator_wrapper(self.lines_train, self.input_shape, self.anchors, self.num_classes),
             steps=max(1, len(self.lines_train) // self._data.batch_size))
-
         val_results = self.local_model.evaluate_generator(
             self._data.data_generator_wrapper(self.lines_val, self.input_shape, self.anchors, self.num_classes),
             steps=max(1, len(self.lines_val) // self._data.batch_size))
 
-        results = [train_results, val_results]
+        # calculate map here
+        images_data, gt_boxes = self._data.get_gt(self.lines_val, self.input_shape, self.num_classes)
+        # Generate output tensor targets for filtered bounding boxes.
+        for j in range(0,images_data.shape[0]):
+            preds = []
+            image_data = images_data[j,:]
+            gt = gt_boxes[j]
+            image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
+            out_boxes, out_scores, out_classes = self.sess.run(
+                                [self.boxes, self.scores, self.classes],
+            feed_dict={
+                self.model_body.input: image_data,
+                self.input_image_shape: [416, 416],
+                K.learning_phase(): 0
+            })
+
+            #print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
+
+            # change the format of the output
+            for i, c in reversed(list(enumerate(out_classes))):
+                predicted_class = self.class_names[c]
+                box = out_boxes[i]
+                score = out_scores[i]
+
+                top, left, bottom, right = box
+                top = max(0, np.floor(top + 0.5).astype('int32'))
+                left = max(0, np.floor(left + 0.5).astype('int32'))
+                bottom = min(416, np.floor(bottom + 0.5).astype('int32'))
+                right = min(416, np.floor(right + 0.5).astype('int32'))
+                preds.append([left, top, right, bottom, int(c), float(score)])
+            preds=np.array(preds)
+            self.metric_fn.add(preds,gt)
+        mean_ap = self.metric_fn.value(iou_thresholds=0.5, recall_thresholds=np.arange(0., 1.1, 0.1))['mAP']
+        results = [train_results, val_results, mean_ap ]
+
+
             #[train_results[0], val_results[0],  # loss
                 #    train_results[1], val_results[1],  # AUC
                 #    train_results[2], val_results[2],  # Precision
@@ -278,6 +344,7 @@ class TrainingProcess:
 
 if __name__ == "__main__":
     m_instance = Model()
-    start_process = TrainingProcess(TrainDataReader(), m_instance)
-    model = keras.models.load_model("test_model")
-    final_model = start_process.train(model)
+    start_process = TrainingProcess(TrainDataReader(), m_instance, epoch=1)
+    final_model = start_process.train('../data/client2/list.txt')
+    results = start_process.validate('../data/client2/list.txt')
+
