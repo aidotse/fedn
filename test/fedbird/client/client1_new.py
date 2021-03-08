@@ -169,6 +169,8 @@ class TrainingProcess:
     def __init__(self, data, model, input_shape=(416, 416), learningrate=1e-3, epoch=1,
                  classes_path='model_data/seabird_classes.txt',
                  anchors_path='model_data/tiny_yolo_anchors.txt',
+                 load_pretrained_model=False,
+                 pretrained_weights_path =None, 
                  data_path=None,
                  data_root_path=None):
 
@@ -182,6 +184,7 @@ class TrainingProcess:
         self.num_classes = len(self.class_names)
         self.anchors = self._data.get_anchors(self.anchors_path)
         self.input_shape = input_shape
+        self.load_pretrained = load_pretrained_model
         self.lr = learningrate
         if data_path:
             self.lines_train, self.lines_val = self._data.read_training_data(data_root_path,data_path)
@@ -194,7 +197,7 @@ class TrainingProcess:
         self.reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
         self.early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
         self.local_model = self._model.build_model(self.anchors,
-                                                   self.num_classes)  # model created, self._model.current_model
+                                                   self.num_classes, load_pretrained=self.load_pretrained, weights_path =pretrained_weights_path)  # model created, self._model.current_model
         self.metric_fn = MetricBuilder.build_evaluation_metric( "map_2d", async_mode=True ,num_classes=self.num_classes)
         
         self.model_body = self._model.get_model_body()
