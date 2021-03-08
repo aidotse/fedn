@@ -280,7 +280,7 @@ class TrainingProcess:
 
         """
         if data_path:
-            _, self.lines_val = self._data.read_training_data(data_root_path, data_path)
+            _, self.lines_val = self._data.read_training_data(data_root_path, data_path, val_split=1)
 
         self.local_model.compile(optimizer=Adam(lr=self.lr),
                                  loss={'yolo_loss': lambda y_true, y_pred: y_pred})
