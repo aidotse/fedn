@@ -331,7 +331,7 @@ class TrainingProcess:
             preds=np.array(preds)
             self.metric_fn.add(preds,gt)
         mean_ap = self.metric_fn.value(iou_thresholds=0.5, recall_thresholds=np.arange(0., 1.1, 0.1))['mAP']
-        results = [train_results, val_results, mean_ap ]
+        results = [train_results, val_results, str(mean_ap) ]
 
 
             #[train_results[0], val_results[0],  # loss
