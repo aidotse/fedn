@@ -28,7 +28,7 @@ if __name__ == '__main__':
     report = {
         "training_loss": results[0],
         "test_loss": results[1],
-        'mAP'      : result[2]
+        'mAP'      : results[2]
         # "training_AUC": results[2],
         # "test_AUC": results[3],
         # "training_Precision": results[4],
