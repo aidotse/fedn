@@ -1,8 +1,13 @@
+# File              : settings-reducer.yaml
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 10.03.2021
+# Last Modified Date: 10.03.2021
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 network_id: fedn-test-network
 
 control:
   state: idle
-  helper: keras_weights
+  helper: keras
 
 statestore:
   type: MongoDB
