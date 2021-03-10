@@ -3,7 +3,7 @@
 # File              : validate.py
 # Author            : Sheetal Reddy <sheetal.reddy@ai.se>
 # Date              : 08.03.2021
-# Last Modified Date: 08.03.2021
+# Last Modified Date: 10.03.2021
 # Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 import logging
 import sys
@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('__name__')
     logger.info("Calling the validate function")
-    from fedn.utils.kerasweights import KerasHelper
+    from fedn.utils.kerashelper import KerasHelper
 
     helper = KerasHelper()
     weights = helper.load_model(sys.argv[1])
