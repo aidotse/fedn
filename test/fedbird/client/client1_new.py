@@ -3,7 +3,7 @@
 # File              : client1_new.py
 # Author            : Sheetal Reddy <sheetal.reddy@ai.se>
 # Date              : 08.03.2021
-# Last Modified Date: 08.03.2021
+# Last Modified Date: 10.03.2021
 # Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 __author__ = 'sheetal.reddy@ai.se'
 
@@ -94,7 +94,7 @@ class TrainDataReader:
 
         # get the data from files
 
-    def read_training_data(self, data_root_path="..", annotation_path='data/Annotation/list1.txt', val_split=0.1):
+    def read_training_data(self, data_root_path="..", annotation_path=None , val_split=0.1):
         with open(annotation_path) as f:
             lines = f.readlines()
         lines = [data_root_path + line for line in lines]
